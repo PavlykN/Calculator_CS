@@ -1,16 +1,13 @@
 ﻿namespace Calculator
 {
-
     class Program
     {
         static void Main()
         {
-            Console.InputEncoding = System.Text.Encoding.UTF8;
             Console.OutputEncoding = System.Text.Encoding.UTF8;
 
             double first, second;
 
-            // start while
             while (true)
             {
                 Console.WriteLine("Оберіть операцію:");
@@ -87,7 +84,6 @@
                 }
 
             }
-            // end while
         }
 
         public static int IntInput()
