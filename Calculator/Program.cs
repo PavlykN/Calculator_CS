@@ -1,114 +1,127 @@
-﻿namespace Calculator
+﻿using System;
+
+namespace Calculator;
+
+public class Program
 {
-    class Program
+    public static void Main(string[] args)
     {
-        static void Main()
+        Console.OutputEncoding = System.Text.Encoding.UTF8;
+
+        CalculatorEngine engine = new CalculatorEngine();
+
+        var operations = new Dictionary<int, Action>
         {
-            Console.OutputEncoding = System.Text.Encoding.UTF8;
+            { 1, () => ExecuteBinaryOperator("addition", engine.Sum) },
+            { 2, () => ExecuteBinaryOperator("subtraction", engine.Subtraction) },
+            { 3, () => ExecuteBinaryOperator("multiplication", engine.Multiplication) },
+            { 4, () => ExecuteBinaryOperator("division", engine.Division) },
+            { 5, () => ExecuteUnaryOperator("Enter a number:", engine.FindSqrt) },
+            { 6, () => ExecuteBinaryOperator("raising to a power", engine.FindPow) },
+        };
 
-            double first, second;
+        while (true)
+        {
+            Console.WriteLine("Select an operation:");
+            Console.WriteLine("1. Add");
+            Console.WriteLine("2. Subtract");
+            Console.WriteLine("3. Multiply");
+            Console.WriteLine("4. Divide");
+            Console.WriteLine("5. Find the square root of a number");
+            Console.WriteLine("6. Raise a number to a power");
+            Console.WriteLine();
 
-            while (true)
+            int operation = IntInput();
+
+            if (operations.TryGetValue(operation, out var action))
             {
-                Console.WriteLine("Оберіть операцію:");
-                Console.WriteLine("1. Додати");
-                Console.WriteLine("2. Відняти");
-                Console.WriteLine("3. Помножити");
-                Console.WriteLine("4. Поділити");
-                Console.WriteLine("5. Квадратний корінь першого числа");
-                Console.WriteLine("6. Піднести перше число до степеня другого");
+                action();
+            }
+            else
+            {
+                Console.WriteLine("Incorrect operation");
+            }
 
-                int operation = IntInput();
+            Console.WriteLine("Would you like to make more calculations? (y/n)");
+            string continueChoice = Console.ReadLine()?.ToLower().Trim();
 
-                switch (operation)
-                {
-                    case 1:
-                        first = DoubleInput("Введіть перше число");
-                        second = DoubleInput("Введіть друге число");
-                        Console.WriteLine($"Результат: {first + second}\n");
-                        break;
-                    case 2:
-                        first = DoubleInput("Введіть перше число");
-                        second = DoubleInput("Введіть друге число");
-                        Console.WriteLine($"Результат: {first - second}\n");
-                        break;
-                    case 3:
-                        first = DoubleInput("Введіть перше число");
-                        second = DoubleInput("Введіть друге число");
-                        Console.WriteLine($"Результат: {first * second}\n");
-                        break;
-                    case 4:
-                        first = DoubleInput("Введіть перше число");
-                        second = DoubleInput("Введіть друге число");
-
-                        if (second == 0)
-                            Console.WriteLine("На нуль ділити не можна\n");
-                        else
-                            Console.WriteLine($"Результат: {first / second}\n");
-                        break;
-                    case 5:
-                        first = DoubleInput("Введіть число");
-
-                        if (first < 0)
-                            Console.WriteLine("Число має бути додатнім");
-                        else
-                            Console.WriteLine($"Результат: {Math.Sqrt(first)}\n");
-                        break;
-                    case 6:
-                        first = DoubleInput("Введіть перше число");
-                        second = DoubleInput("Введіть друге число");
-                        Console.WriteLine($"Результат: {Math.Pow(first, second)}\n");
-                        break;
-                    default:
-                        Console.WriteLine("Оберіть операцію 1-6\n");
-                        break;
-                }
-
-                Console.WriteLine("Бажаєте зробити ще обчислення? (так/ні)");
-                string continueChoice = Console.ReadLine()?.ToLower().Trim();
-
-                if (continueChoice == "так")
-                {
-                    Console.WriteLine();
-                    continue;
-                }
-                else if (continueChoice == "ні")
-                {
-                    Console.WriteLine("Завершення програми...");
-                    break;
-                }
-                else
-                {
-                    Console.WriteLine("Невідома відповідь. Завершення програми...");
-                    break;
-                }
-
+            if (continueChoice == "y")
+            {
+                Console.WriteLine();
+                continue;
+            }
+            else if (continueChoice == "n")
+            {
+                Console.WriteLine("End of the program...");
+                break;
+            }
+            else
+            {
+                Console.WriteLine("Unknown response. Program terminating...");
+                break;
             }
         }
+    }
 
-        public static int IntInput()
+    static void ExecuteBinaryOperator(string opName, Func<double, double, double> operation)
+    {
+        double first = DoubleInput($"Enter the first number for {opName}");
+        double second = DoubleInput("Enter the second number");
+        try
         {
-            while (true)
+            double result = operation(first, second);
+            Console.WriteLine($"Result: {result}\n");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error: {ex.Message}\n");
+        }
+    }
+
+    static void ExecuteUnaryOperator(string message, Func<double, double> operation)
+    {
+        double val = DoubleInput(message);
+        try
+        {
+            Console.WriteLine($"Result: {operation(val)}\n");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error: {ex.Message}\n");
+        }
+    }
+
+    public static int IntInput()
+    {
+        while (true)
+        {
+            string input = Console.ReadLine();
+            if (int.TryParse(input, out int number))
             {
-                string input = Console.ReadLine();
-                if (int.TryParse(input, out int number))
-                    return number;
-                else
-                    Console.WriteLine("Введіть ціле число\n");
+                return number;
+            }
+            else
+            {
+                Console.WriteLine("Enter an integer\n");
             }
         }
+    }
 
-        public static double DoubleInput(string prompt)
+    public static double DoubleInput(string prompt)
+    {
+        while (true)
         {
-            while (true)
+            Console.WriteLine(prompt);
+            string input = Console.ReadLine();
+            if (double.TryParse(input, out double value))
             {
-                Console.WriteLine(prompt); 
-                string input = Console.ReadLine();
-                if (double.TryParse(input, out double value))
-                    return value;
-                else
-                    Console.WriteLine("Введіть число, а не букву\n");
+                return value;
+            }
+            else
+            {
+                Console.WriteLine("Enter a number, not a letter\n");
             }
         }
     }
 }
+
